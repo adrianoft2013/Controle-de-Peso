@@ -7,7 +7,7 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { AddWeightModal } from './components/AddWeightModal';
 import { USER_AVATAR_URL, MOCK_USER } from './constants';
 import { TimeRange, Tab } from './types';
-import { useWeightData } from '../hooks/useWeightData';
+import { useWeightData } from './hooks/useWeightData';
 
 const App: React.FC = () => {
   const { profile, history, loading, addWeight, saveProfile } = useWeightData();
