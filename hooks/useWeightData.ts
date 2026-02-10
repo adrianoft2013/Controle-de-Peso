@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { WeightEntry, UserProfile } from '../Controle-de-Peso/types';
+import { WeightEntry, UserProfile } from '../types';
 
 export const useWeightData = () => {
     const [loading, setLoading] = useState(true);
@@ -24,7 +24,8 @@ export const useWeightData = () => {
                     gender: profileData.gender,
                     age: profileData.age,
                     height: profileData.height,
-                    startWeight: profileData.start_weight
+                    startWeight: profileData.start_weight,
+                    targetWeight: profileData.target_weight
                 });
             }
 
@@ -97,6 +98,7 @@ export const useWeightData = () => {
                 age: profileData.age,
                 height: profileData.height,
                 start_weight: profileData.startWeight,
+                target_weight: profileData.targetWeight,
                 updated_at: new Date().toISOString()
             };
 
@@ -120,9 +122,42 @@ export const useWeightData = () => {
         }
     };
 
+    const deleteWeightEntry = async (id: string) => {
+        try {
+            const { error } = await supabase
+                .from('weight_entries')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            await fetchData();
+        } catch (error) {
+            console.error('Error deleting weight entry:', error);
+            throw error;
+        }
+    };
+
+    const updateWeightEntry = async (id: string, weight: number) => {
+        try {
+            // Recalculate diff/trend if we were more sophisticated, 
+            // but for simplicity we'll just update weight 
+            // and maybe let the backend/fetch re-sort 
+            const { error } = await supabase
+                .from('weight_entries')
+                .update({ weight })
+                .eq('id', id);
+
+            if (error) throw error;
+            await fetchData();
+        } catch (error) {
+            console.error('Error updating weight entry:', error);
+            throw error;
+        }
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
 
-    return { profile, history, loading, addWeight, saveProfile, refresh: fetchData };
+    return { profile, history, loading, addWeight, saveProfile, deleteWeightEntry, updateWeightEntry, refresh: fetchData };
 };

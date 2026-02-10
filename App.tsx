@@ -4,19 +4,20 @@ import { WeightChart } from './components/WeightChart';
 import { HistoryItem } from './components/HistoryItem';
 import { BottomNav } from './components/BottomNav';
 import { ProfileScreen } from './components/ProfileScreen';
+import { HistoryScreen } from './components/HistoryScreen';
 import { AddWeightModal } from './components/AddWeightModal';
-import { USER_AVATAR_URL, MOCK_USER } from './constants';
+import { USER_AVATAR_URL } from './constants';
 import { TimeRange, Tab } from './types';
 import { useWeightData } from './hooks/useWeightData';
 
 const App: React.FC = () => {
-  const { profile, history, loading, addWeight, saveProfile } = useWeightData();
+  const { profile, history, loading, addWeight, saveProfile, deleteWeightEntry, updateWeightEntry } = useWeightData();
   const [timeRange, setTimeRange] = useState<TimeRange>('W');
-  const [currentTab, setCurrentTab] = useState<Tab>('home');
+  const [currentTab, setCurrentTab] = useState<Tab | 'history'>('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentWeight = history.length > 0 ? history[0].weight : (profile?.startWeight || 0);
-  const targetWeight = 68.0; // Still hardcoded for now or could be in profile
+  const targetWeight = profile?.targetWeight || 68.0;
   const weightDiff = profile ? (currentWeight - profile.startWeight).toFixed(1) : '0.0';
 
   const chartData = history.slice().reverse().map(entry => ({
@@ -34,6 +35,7 @@ const App: React.FC = () => {
   const getPageTitle = () => {
     switch (currentTab) {
       case 'profile': return 'Meu Perfil';
+      case 'history': return 'Histórico';
       default: return 'Controle de Peso';
     }
   };
@@ -53,6 +55,17 @@ const App: React.FC = () => {
           user={profile}
           currentWeight={currentWeight}
           onSaveProfile={saveProfile}
+        />
+      );
+    }
+
+    if (currentTab === 'history') {
+      return (
+        <HistoryScreen
+          history={history}
+          onBack={() => setCurrentTab('home')}
+          onDelete={deleteWeightEntry}
+          onUpdate={updateWeightEntry}
         />
       );
     }
@@ -112,13 +125,16 @@ const App: React.FC = () => {
         <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Histórico</h2>
-            <button className="text-xs font-bold text-primary hover:text-blue-700 transition-colors">
+            <button
+              onClick={() => setCurrentTab('history')}
+              className="text-xs font-bold text-primary hover:text-blue-700 transition-colors"
+            >
               Ver Tudo
             </button>
           </div>
 
           <div className="space-y-3">
-            {history.map((entry) => (
+            {history.slice(0, 2).map((entry) => (
               <HistoryItem key={entry.id} entry={entry} />
             ))}
           </div>
@@ -154,7 +170,7 @@ const App: React.FC = () => {
       </main>
 
       <BottomNav
-        currentTab={currentTab}
+        currentTab={currentTab === 'history' ? 'home' : (currentTab as Tab)}
         onNavigate={setCurrentTab}
         onAddClick={() => setIsModalOpen(true)}
       />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { UserProfile } from '../Controle-de-Peso/types';
-import { User, Calendar, Ruler, Weight, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { UserProfile } from '../types';
+import { User, Calendar, Ruler, Weight, Activity, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface ProfileFormProps {
     initialData?: UserProfile | null;
@@ -16,6 +16,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSave })
     const [age, setAge] = useState(initialData?.age.toString() || '');
     const [height, setHeight] = useState(initialData?.height.toString() || '');
     const [startWeight, setStartWeight] = useState(initialData?.startWeight.toString() || '');
+    const [targetWeight, setTargetWeight] = useState(initialData?.targetWeight.toString() || '68.0');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,7 +27,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSave })
                 gender,
                 age: parseInt(age),
                 height: parseInt(height),
-                startWeight: parseFloat(startWeight)
+                startWeight: parseFloat(startWeight),
+                targetWeight: parseFloat(targetWeight)
             });
             setSuccess(true);
             setTimeout(() => setSuccess(false), 3000);
@@ -148,6 +150,24 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSave })
                                 required
                             />
                         </div>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase ml-1">Meta de Peso (kg)</label>
+                    <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                            <Activity size={18} />
+                        </div>
+                        <input
+                            type="number"
+                            step="0.1"
+                            placeholder="68.0"
+                            className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 text-slate-700 outline-none ring-2 ring-transparent focus:ring-primary/20 focus:bg-white transition-all"
+                            value={targetWeight}
+                            onChange={(e) => setTargetWeight(e.target.value)}
+                            required
+                        />
                     </div>
                 </div>
 

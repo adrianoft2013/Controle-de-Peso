@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserProfile } from '../Controle-de-Peso/types';
+import { UserProfile } from '../types';
 import { USER_AVATAR_URL } from '../constants';
 import { Edit2, Ruler, Weight, Calendar, User as UserIcon, Activity, ArrowLeft } from 'lucide-react';
 import { ProfileForm } from './ProfileForm';
@@ -67,7 +67,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, currentWeigh
                     </button>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-slate-900">{user.name}</h2>
-                <p className="text-slate-400 text-sm font-medium">Membro desde Out 2023</p>
             </div>
 
             {/* Stats Grid */}
@@ -108,6 +107,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, currentWeigh
                         <p className="font-bold text-slate-700">{user.startWeight} kg</p>
                     </div>
                 </div>
+                <div className="bg-white p-4 rounded-2xl border border-primary/5 shadow-sm flex items-center gap-3 ring-2 ring-primary/10">
+                    <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary shrink-0">
+                        <Activity size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] uppercase font-bold text-primary">Peso Atual</p>
+                        <p className="font-bold text-slate-700">{currentWeight.toFixed(1)} kg</p>
+                    </div>
+                </div>
             </div>
 
             {/* IMC Card */}
@@ -118,8 +126,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, currentWeigh
                             <Activity size={20} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-slate-800">IMC</h3>
-                            <p className="text-xs text-slate-400">Índice de Massa Corporal</p>
+                            <h3 className="font-bold text-slate-800">IMC Atual</h3>
+                            <p className="text-[10px] text-slate-400">Baseado no seu peso mais recente</p>
                         </div>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-xs font-bold ${imcCategory.bg} ${imcCategory.color}`}>
@@ -150,6 +158,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ user, currentWeigh
                     </div>
                 </div>
             </div>
+
         </div>
     );
 };

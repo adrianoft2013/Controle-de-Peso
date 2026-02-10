@@ -1,6 +1,6 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartDataPoint } from '../Controle-de-Peso/types';
+import { ChartDataPoint } from '../types';
 
 interface WeightChartProps {
   data: ChartDataPoint[];

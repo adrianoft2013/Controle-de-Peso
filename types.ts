@@ -18,6 +18,7 @@ export interface UserProfile {
   age: number;
   height: number; // cm
   startWeight: number; // kg
+  targetWeight: number; // kg
 }
 
 export type TimeRange = 'W' | 'M' | 'Y';
