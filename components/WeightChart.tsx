@@ -1,6 +1,6 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartDataPoint } from '../types';
+import { ChartDataPoint } from '../Controle-de-Peso/types';
 
 interface WeightChartProps {
   data: ChartDataPoint[];
@@ -25,18 +25,18 @@ export const WeightChart: React.FC<WeightChartProps> = ({ data }) => {
               <stop offset="95%" stopColor="#135bec" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis 
-            dataKey="date" 
-            axisLine={false} 
-            tickLine={false} 
+          <XAxis
+            dataKey="date"
+            axisLine={false}
+            tickLine={false}
             tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 500 }}
             dy={10}
             interval="preserveStartEnd"
           />
-          <Tooltip 
-            contentStyle={{ 
-              borderRadius: '8px', 
-              border: 'none', 
+          <Tooltip
+            contentStyle={{
+              borderRadius: '8px',
+              border: 'none',
               boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
               fontSize: '12px'
             }}

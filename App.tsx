@@ -5,13 +5,24 @@ import { HistoryItem } from './components/HistoryItem';
 import { BottomNav } from './components/BottomNav';
 import { ProfileScreen } from './components/ProfileScreen';
 import { AddWeightModal } from './components/AddWeightModal';
-import { MOCK_HISTORY, CHART_DATA, USER_AVATAR_URL, MOCK_USER } from './constants';
+import { USER_AVATAR_URL, MOCK_USER } from './constants';
 import { TimeRange, Tab } from './types';
+import { useWeightData } from '../hooks/useWeightData';
 
 const App: React.FC = () => {
+  const { profile, history, loading, addWeight, saveProfile } = useWeightData();
   const [timeRange, setTimeRange] = useState<TimeRange>('W');
   const [currentTab, setCurrentTab] = useState<Tab>('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const currentWeight = history.length > 0 ? history[0].weight : (profile?.startWeight || 0);
+  const targetWeight = 68.0; // Still hardcoded for now or could be in profile
+  const weightDiff = profile ? (currentWeight - profile.startWeight).toFixed(1) : '0.0';
+
+  const chartData = history.slice().reverse().map(entry => ({
+    date: entry.date.split(',')[0],
+    weight: entry.weight
+  }));
 
   const timeRangeLabels: Record<TimeRange, string> = {
     'W': 'S',
@@ -19,11 +30,6 @@ const App: React.FC = () => {
     'Y': 'A'
   };
 
-  const handleSaveWeight = (weight: number, date: string) => {
-    // In a real app, we would update the state/backend here
-    console.log(`Saving weight: ${weight}kg for date: ${date}`);
-    setIsModalOpen(false);
-  };
 
   const getPageTitle = () => {
     switch (currentTab) {
@@ -33,11 +39,20 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      );
+    }
+
     if (currentTab === 'profile') {
       return (
-        <ProfileScreen 
-          user={MOCK_USER} 
-          currentWeight={MOCK_HISTORY[0].weight} 
+        <ProfileScreen
+          user={profile}
+          currentWeight={currentWeight}
+          onSaveProfile={saveProfile}
         />
       );
     }
@@ -46,22 +61,22 @@ const App: React.FC = () => {
       <>
         {/* Summary Stats */}
         <section className="mt-6 mb-8 grid grid-cols-3 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <SummaryCard 
-            label="Atual" 
-            value="72.4" 
-            unit="kg" 
+          <SummaryCard
+            label="Atual"
+            value={currentWeight.toFixed(1)}
+            unit="kg"
             valueColor="text-primary"
           />
-          <SummaryCard 
-            label="Meta" 
-            value="68.0" 
-            unit="kg" 
+          <SummaryCard
+            label="Meta"
+            value={targetWeight.toFixed(1)}
+            unit="kg"
           />
-          <SummaryCard 
-            label="Dif" 
-            value="-1.2" 
-            unit="kg" 
-            valueColor="text-green-500"
+          <SummaryCard
+            label="Dif"
+            value={weightDiff}
+            unit="kg"
+            valueColor={parseFloat(weightDiff) <= 0 ? 'text-green-500' : 'text-red-500'}
           />
         </section>
 
@@ -76,8 +91,8 @@ const App: React.FC = () => {
                   onClick={() => setTimeRange(range)}
                   className={`
                     px-3 py-1 text-xs font-bold rounded-md transition-all
-                    ${timeRange === range 
-                      ? 'bg-white text-primary shadow-sm' 
+                    ${timeRange === range
+                      ? 'bg-white text-primary shadow-sm'
                       : 'text-slate-400 hover:text-slate-600'
                     }
                   `}
@@ -87,9 +102,9 @@ const App: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="bg-white rounded-2xl p-4 border border-primary/5 shadow-sm overflow-hidden">
-            <WeightChart data={CHART_DATA} />
+            <WeightChart data={chartData} />
           </div>
         </section>
 
@@ -101,9 +116,9 @@ const App: React.FC = () => {
               Ver Tudo
             </button>
           </div>
-          
+
           <div className="space-y-3">
-            {MOCK_HISTORY.map((entry) => (
+            {history.map((entry) => (
               <HistoryItem key={entry.id} entry={entry} />
             ))}
           </div>
@@ -119,15 +134,14 @@ const App: React.FC = () => {
         <div className="px-6 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold tracking-tight text-slate-900">{getPageTitle()}</h1>
           <div className="flex gap-4 items-center">
-            <button 
+            <button
               onClick={() => setCurrentTab('profile')}
-              className={`w-10 h-10 rounded-full border-2 overflow-hidden shadow-sm transition-colors ${
-                currentTab === 'profile' ? 'border-primary ring-2 ring-primary/20' : 'border-primary/20 hover:border-primary'
-              }`}
+              className={`w-10 h-10 rounded-full border-2 overflow-hidden shadow-sm transition-colors ${currentTab === 'profile' ? 'border-primary ring-2 ring-primary/20' : 'border-primary/20 hover:border-primary'
+                }`}
             >
-              <img 
-                src={USER_AVATAR_URL} 
-                alt="Perfil do Usuário" 
+              <img
+                src={USER_AVATAR_URL}
+                alt="Perfil do Usuário"
                 className="w-full h-full object-cover"
               />
             </button>
@@ -139,16 +153,19 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
-      <BottomNav 
-        currentTab={currentTab} 
-        onNavigate={setCurrentTab} 
+      <BottomNav
+        currentTab={currentTab}
+        onNavigate={setCurrentTab}
         onAddClick={() => setIsModalOpen(true)}
       />
-      
-      <AddWeightModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveWeight} 
+
+      <AddWeightModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(w) => {
+          addWeight(w);
+          setIsModalOpen(false);
+        }}
       />
     </div>
   );
