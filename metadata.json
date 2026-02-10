@@ -1,0 +1,5 @@
+{
+  "name": "Controle de Peso",
+  "description": "Um painel de controle de peso mobile-first com análise de tendências, histórico e metas.",
+  "requestFramePermissions": []
+}
